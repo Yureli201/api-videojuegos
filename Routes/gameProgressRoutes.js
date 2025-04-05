@@ -9,9 +9,10 @@ router.post("/", async (req, res) => {
   try {
     const [result] = await pool.execute(
       "INSERT INTO game_progress (player_id, score, lives, time, levels) VALUES (?, ?, ?, ?, ?)",
-      [player_id, score, lives, time, levels]
+        [player_id, score, lives, time, levels]
     );
     res.json({ id: result.insertId, message: "Progreso creado exitosamente" });
+    console.log(req.body);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -31,13 +32,14 @@ router.get("/", async (req, res) => {
 router.get("/:id", async (req, res) => {
   const { id } = req.params;
   try {
-    const [rows] = await pool.execute("SELECT * FROM game_progress WHERE id = ?", [id]);
+    const [rows] = await pool.execute("SELECT * FROM game_progress WHERE player_id = ?", [id]);
 
     if (rows.length === 0) {
       return res.status(404).json({ message: "Progreso no encontrado" });
     }
 
     res.json(rows[0]); // Devuelve el primer resultado encontrado
+    console.log(rows[0]);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -50,10 +52,11 @@ router.put("/:id", async (req, res) => {
   const { score, lives, time, levels } = req.body;
   try {
     await pool.execute(
-      "UPDATE game_progress SET score=?, lives=?, time=?, levels=?, last_update=NOW() WHERE id=?",
+      "UPDATE game_progress SET score=?, lives=?, time=?, levels=?, last_update=NOW() WHERE player_id=?",
       [score, lives, time, levels, id]
     );
     res.json({ message: "Progreso actualizado exitosamente" });
+    console.log(req.body);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
